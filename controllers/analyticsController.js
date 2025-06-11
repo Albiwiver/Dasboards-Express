@@ -1,6 +1,16 @@
 const Order = require("../models/Order");
 const dayjs = require("dayjs");
 
+const calculateOrderTotal = (orders) => {
+  return orders.reduce((sum, order) => {
+    const orderTotal = order.items.reduce(
+      (acc, item) => acc + item.unitPrice * item.quantity,
+      0
+    );
+    return sum + orderTotal;
+  }, 0);
+};
+
 exports.getNetIncome = async (req, res) => {
   try {
     const from =
@@ -19,20 +29,14 @@ exports.getNetIncome = async (req, res) => {
       createdAt: { $gte: fromDate, $lte: toDate },
     });
 
-    const currentTotal = currentOrders.reduce(
-      (sum, order) => sum + Math.abs(order.amount),
-      0
-    );
+    const currentTotal = calculateOrderTotal(currentOrders);
 
     const previousOrders = await Order.find({
       status: "COMPLETED",
       createdAt: { $gte: prevFrom, $lte: prevTo },
     });
 
-    const previousTotal = previousOrders.reduce(
-      (sum, order) => sum + Math.abs(order.amount),
-      0
-    );
+    const previousTotal = calculateOrderTotal(previousOrders);
 
     const percentageChange =
       previousTotal === 0
@@ -98,34 +102,25 @@ exports.getAverageSales = async (req, res) => {
     const prevFrom = new Date(fromDate.getTime() - duration);
     const prevTo = fromDate;
 
-    // Actual
     const currentOrders = await Order.find({
       status: "COMPLETED",
       createdAt: { $gte: fromDate, $lte: toDate },
     });
 
-    const currentTotal = currentOrders.reduce(
-      (sum, order) => sum + Math.abs(order.amount),
-      0
-    );
+    const currentTotal = calculateOrderTotal(currentOrders);
     const currentCount = currentOrders.length;
     const currentAverage = currentCount === 0 ? 0 : currentTotal / currentCount;
 
-    // Anterior
     const previousOrders = await Order.find({
       status: "COMPLETED",
       createdAt: { $gte: prevFrom, $lte: prevTo },
     });
 
-    const previousTotal = previousOrders.reduce(
-      (sum, order) => sum + Math.abs(order.amount),
-      0
-    );
+    const previousTotal = calculateOrderTotal(previousOrders);
     const previousCount = previousOrders.length;
     const previousAverage =
       previousCount === 0 ? 0 : previousTotal / previousCount;
 
-    // Variación
     const percentageChange =
       previousAverage === 0
         ? null

@@ -1,4 +1,6 @@
 const Order = require("../models/Order");
+const Customer = require("../models/Customer");
+const Product = require("../models/Product");
 const csv = require("csv-parser");
 
 exports.getOrders = async (req, res) => {
@@ -41,6 +43,26 @@ exports.getOrders = async (req, res) => {
   }
 };
 
+exports.getOrderDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await Order.findById(id)
+      .populate("customer", "name email phone")
+      .populate("items.product", "name price imageUrl sku")
+      .lean();
+
+    if (!order) {
+      return res.status(404).json({ message: "Orden no encontrada" });
+    }
+
+    res.json(order);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error al obtener la orden" });
+  }
+};
+
 exports.uploadOrdersCSV = async (req, res) => {
   try {
     if (!req.file) {
@@ -55,7 +77,6 @@ exports.uploadOrdersCSV = async (req, res) => {
       .createReadStream(stream)
       .pipe(csv())
       .on("data", (row) => {
-        // Validar y normalizar datos
         if (
           row.transactionId &&
           row.from &&

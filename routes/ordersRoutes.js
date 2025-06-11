@@ -1,15 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
-const ordersController = require("../controllers/ordersController");
+const {
+  getOrders,
+  getOrderDetails,
+  uploadOrdersCSV,
+} = require("../controllers/ordersController");
 const upload = require("../middlewares/upload");
 
-router.get("/", authMiddleware, ordersController.getOrders);
+router.get("/", authMiddleware, getOrders);
+router.get("/:id", authMiddleware, getOrderDetails);
 router.post(
   "/upload-csv",
   authMiddleware,
   upload.single("file"),
-  ordersController.uploadOrdersCSV
+  uploadOrdersCSV
 );
 
 module.exports = router;

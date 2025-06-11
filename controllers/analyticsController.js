@@ -13,6 +13,8 @@ const calculateOrderTotal = (orders) => {
 
 exports.getNetIncome = async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const from =
       req.query.from || dayjs().subtract(7, "day").startOf("day").toISOString();
     const to = req.query.to || dayjs().endOf("day").toISOString();
@@ -25,6 +27,7 @@ exports.getNetIncome = async (req, res) => {
     const prevTo = fromDate;
 
     const currentOrders = await Order.find({
+      user: userId,
       status: "COMPLETED",
       createdAt: { $gte: fromDate, $lte: toDate },
     });
@@ -32,6 +35,7 @@ exports.getNetIncome = async (req, res) => {
     const currentTotal = calculateOrderTotal(currentOrders);
 
     const previousOrders = await Order.find({
+      user: userId,
       status: "COMPLETED",
       createdAt: { $gte: prevFrom, $lte: prevTo },
     });
@@ -55,6 +59,8 @@ exports.getNetIncome = async (req, res) => {
 
 exports.getTotalOrders = async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const from =
       req.query.from || dayjs().subtract(7, "day").startOf("day").toISOString();
     const to = req.query.to || dayjs().endOf("day").toISOString();
@@ -67,10 +73,12 @@ exports.getTotalOrders = async (req, res) => {
     const prevTo = fromDate;
 
     const currentCount = await Order.countDocuments({
+      user: userId,
       createdAt: { $gte: fromDate, $lte: toDate },
     });
 
     const previousCount = await Order.countDocuments({
+      user: userId,
       createdAt: { $gte: prevFrom, $lte: prevTo },
     });
 
@@ -91,6 +99,8 @@ exports.getTotalOrders = async (req, res) => {
 
 exports.getAverageSales = async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const from =
       req.query.from || dayjs().subtract(7, "day").startOf("day").toISOString();
     const to = req.query.to || dayjs().endOf("day").toISOString();
@@ -103,6 +113,7 @@ exports.getAverageSales = async (req, res) => {
     const prevTo = fromDate;
 
     const currentOrders = await Order.find({
+      user: userId,
       status: "COMPLETED",
       createdAt: { $gte: fromDate, $lte: toDate },
     });
@@ -112,6 +123,7 @@ exports.getAverageSales = async (req, res) => {
     const currentAverage = currentCount === 0 ? 0 : currentTotal / currentCount;
 
     const previousOrders = await Order.find({
+      user: userId,
       status: "COMPLETED",
       createdAt: { $gte: prevFrom, $lte: prevTo },
     });
@@ -138,6 +150,8 @@ exports.getAverageSales = async (req, res) => {
 
 exports.getCanceledOrders = async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const from =
       req.query.from || dayjs().subtract(7, "day").startOf("day").toISOString();
     const to = req.query.to || dayjs().endOf("day").toISOString();
@@ -150,11 +164,13 @@ exports.getCanceledOrders = async (req, res) => {
     const prevTo = fromDate;
 
     const currentCount = await Order.countDocuments({
+      user: userId,
       status: "CANCELED",
       createdAt: { $gte: fromDate, $lte: toDate },
     });
 
     const previousCount = await Order.countDocuments({
+      user: userId,
       status: "CANCELED",
       createdAt: { $gte: prevFrom, $lte: prevTo },
     });

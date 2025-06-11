@@ -3,6 +3,11 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema(
   {
     transactionId: { type: String, required: true, unique: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
@@ -34,9 +39,6 @@ const orderSchema = new mongoose.Schema(
       state: String,
       postalCode: String,
       country: String,
-    },
-    billingAddress: {
-      sameAsShipping: Boolean,
     },
     note: { type: String },
   },

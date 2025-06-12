@@ -12,6 +12,7 @@ const customerSchema = new mongoose.Schema(
       postalCode: String,
       country: String,
     },
+    avatar: { type: String },
   },
   {
     timestamps: true,

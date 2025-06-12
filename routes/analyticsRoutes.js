@@ -1,19 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const analyticsController = require("../controllers/analyticsController");
+const {
+  getNetIncome,
+  getAverageSales,
+  getCanceledOrders,
+  getTotalOrders,
+} = require("../controllers/analyticsController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
-router.get("/net-income", authMiddleware, analyticsController.getNetIncome);
-router.get("/total-orders", authMiddleware, analyticsController.getTotalOrders);
-router.get(
-  "/average-sales",
-  authMiddleware,
-  analyticsController.getAverageSales
-);
-router.get(
-  "/canceled-orders",
-  authMiddleware,
-  analyticsController.getCanceledOrders
-);
+router.get("/net-income", authMiddleware, getNetIncome);
+router.get("/total-orders", authMiddleware, getTotalOrders);
+router.get("/average-sales", authMiddleware, getAverageSales);
+router.get("/canceled-orders", authMiddleware, getCanceledOrders);
 
 module.exports = router;

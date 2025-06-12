@@ -107,7 +107,6 @@ exports.uploadOrdersCSV = async (req, res) => {
           });
         }
 
-        // Agregar ítem
         const order = ordersMap.get(txId);
         order.items.push({
           product: row.productId,

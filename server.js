@@ -5,6 +5,8 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const ordersRoutes = require("./routes/ordersRoutes");
+const customersRoutes = require("./routes/customerRoutes");
+const integrationsRoutes = require("./routes/integrationsRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 
 dotenv.config();
@@ -17,11 +19,10 @@ app.use(express.json());
 
 // Rutas
 app.use("/api/auth", authRoutes);
-app.get("/ping", (req, res) => {
-  res.send("pong");
-});
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/orders", ordersRoutes);
+app.use("/api/customers", customersRoutes);
+app.use("/api/integrations", integrationsRoutes);
 
 // Error handler
 app.use(errorHandler);

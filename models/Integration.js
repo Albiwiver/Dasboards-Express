@@ -6,6 +6,8 @@ const integrationSchema = new mongoose.Schema(
     title: { type: String, required: true },
     description: { type: String },
     image: { type: String },
+    rate: { type: String },
+    rateReviews: { type: String },
   },
   {
     timestamps: true,

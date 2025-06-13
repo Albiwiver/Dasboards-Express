@@ -20,6 +20,8 @@ exports.getIntegrations = async (req, res) => {
       title: integration.title,
       description: integration.description,
       image: integration.image,
+      rateReviews: integration.rateReviews,
+      rate: integration.rate,
       connected: userIntegrationMap.get(integration._id.toString()) || false,
     }));
 

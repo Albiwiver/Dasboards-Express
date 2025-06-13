@@ -5,6 +5,24 @@ const User = require("../models/User");
 const errorResponse = require("../utils/errorResponse");
 const successResponse = require("../utils/successResponse");
 const { sendResetPasswordEmail } = require("../services/emailService");
+const cloudinary = require("../config/cloudinary");
+const { Readable } = require("stream");
+
+const streamUpload = (buffer, options) => {
+  return new Promise((resolve, reject) => {
+    const readableStream = Readable.from(buffer);
+
+    const stream = cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    readableStream.pipe(stream);
+  });
+};
 
 exports.register = async (req, res, next) => {
   try {
@@ -191,5 +209,56 @@ exports.resetPassword = async (req, res, next) => {
     return successResponse(res, 200, "Contraseña actualizada correctamente");
   } catch (error) {
     next(error);
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, email, lastName } = req.body;
+
+    const updates = {
+      ...(name && { name }),
+      ...(email && { email }),
+      ...(lastName && { lastName }),
+    };
+
+    if (req.file) {
+      try {
+        const result = await streamUpload(req.file.buffer, {
+          folder: "zoeshop/users",
+          public_id: userId,
+          overwrite: true,
+        });
+        updates.avatar = result.secure_url;
+      } catch (err) {
+        console.error("Cloudinary error:", err);
+        return errorResponse(
+          res,
+          500,
+          "CLOUDINARY_ERROR",
+          "Error subiendo imagen"
+        );
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return errorResponse(res, 404, "USER_NOT_FOUND", "Usuario no encontrado");
+    }
+
+    return successResponse(res, 200, "Usuario actualizado", { user });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(
+      res,
+      500,
+      "SERVER_ERROR",
+      "Error interno del servidor"
+    );
   }
 };

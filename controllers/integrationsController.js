@@ -31,3 +31,33 @@ exports.getIntegrations = async (req, res) => {
       .json({ message: "Error al obtener las integraciones" });
   }
 };
+
+exports.updateIntegrationStatus = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { integrationId } = req.params;
+    const { connected } = req.body;
+
+    if (typeof connected !== "boolean") {
+      return res
+        .status(400)
+        .json({ message: "El campo 'connected' debe ser booleano" });
+    }
+
+    const updated = await UserIntegration.findOneAndUpdate(
+      { user: userId, integration: integrationId },
+      { connected },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    res.json({
+      message: `Integración ${
+        connected ? "conectada" : "desconectada"
+      } correctamente`,
+      data: updated,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al actualizar la integración" });
+  }
+};

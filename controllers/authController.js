@@ -111,6 +111,7 @@ exports.login = async (req, res, next) => {
         name: user.name,
         lastName: user.lastName,
         email: user.email,
+        avatar: user.avatar,
       },
     });
   } catch (error) {

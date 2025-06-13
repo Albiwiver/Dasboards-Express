@@ -139,7 +139,7 @@ exports.getAverageSales = async (req, res) => {
         : ((currentAverage - previousAverage) / previousAverage) * 100;
 
     res.json({
-      average: Number(currentAverage.toFixed(2)),
+      total: Number(currentAverage.toFixed(2)),
       percentageChange: percentageChange?.toFixed(2) ?? null,
     });
   } catch (err) {
